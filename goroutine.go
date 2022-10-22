@@ -4,23 +4,19 @@ import (
 	"context"
 	"fmt"
 	"runtime"
-	"time"
 )
 
 func main() {
 	fmt.Println("Total Goroutine", runtime.NumGoroutine())
-	const timeoutDuration = 10 * time.Second
 
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
-	//ctx, cancel := context.WithTimeout(ctx, timeoutDuration)
 	defer cancel()
 	destination := CreateCounter(ctx)
 	for n := range destination {
 		fmt.Println("Counter", n)
 		if n == 10 {
 			cancel()
-			//return
 		}
 	}
 
@@ -35,7 +31,7 @@ func CreateCounter(ctx context.Context) chan int {
 		for {
 			select {
 			case <-ctx.Done():
-				break
+				return
 			default:
 				destination <- counter
 				counter++
